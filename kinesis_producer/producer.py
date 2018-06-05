@@ -44,7 +44,7 @@ class KinesisProducer(object):
         if not isinstance(record, six.binary_type):
             raise ValueError("Record must be bytes type")
 
-        record_size = len(record) + len(self.config['record_delimiter'])
+        record_size = len(record) + 4
         if record_size > KINESIS_RECORD_MAX_SIZE:
             raise ValueError("Record is larger than max record size")
 
