@@ -22,7 +22,7 @@ class RawBuffer(object):
         if self._size + total_length > KINESIS_RECORD_MAX_SIZE:
             return False
 
-        self._buffer.write(struct.pack(record_length, '<I'))
+        self._buffer.write(struct.pack('<I', record_length))
         self._buffer.write(record)
         self._size += total_length
         return True
