@@ -1,4 +1,5 @@
 import io
+import struct
 
 from .constants import KINESIS_RECORD_MAX_SIZE
 
@@ -7,7 +8,6 @@ class RawBuffer(object):
     """Bytes buffer with delimiter."""
 
     def __init__(self, config):
-        self.record_delimiter = config['record_delimiter']
         self.size_limit = config['buffer_size_limit']
         self._size = 0
         self._buffer = io.BytesIO()
@@ -16,14 +16,15 @@ class RawBuffer(object):
         """Append a record if possible, return False otherwise."""
         assert self._buffer is not None, 'Buffer is closed!'
 
-        record_length = len(record) + len(self.record_delimiter)
+        record_length = len(record)
+        total_length = record_length + 4
 
-        if self._size + record_length > KINESIS_RECORD_MAX_SIZE:
+        if self._size + total_length > KINESIS_RECORD_MAX_SIZE:
             return False
 
+        self._buffer.write(struct.pack('<I', record_length))
         self._buffer.write(record)
-        self._buffer.write(self.record_delimiter)
-        self._size += record_length
+        self._size += total_length
         return True
 
     def is_ready(self):
